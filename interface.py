@@ -44,7 +44,11 @@ def affichage_carte():
         <h4>Code de la zone à modéliser: {}</h4> 
         '''.format(feature['properties']['LIBELLE'],
         feature['properties']['CODE_ZONE'])
+    def update_CodeSite(feature, **kwargs):
+        site_selector.value=feature['properties']['CODE_ZONE']
+        print("feature", feature['properties']['CODE_ZONE'])
     geo_data.on_hover(update_html)
+    geo_data.on_click(update_CodeSite)
     m.add_control(LayersControl())
 
     header = HTML("<h1>Parametrage du modèle</h1>", layout=Layout(height='auto'))
