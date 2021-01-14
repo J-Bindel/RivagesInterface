@@ -55,6 +55,9 @@ def affichage_carte():
                                 layout=Layout(width='auto'))
     scenario_selector = Dropdown(options=('Actuel','RCP 2.6', 'RCP 4.5','RCP 6.0','RCP 8.5'),
                                 layout=Layout(width='auto'))
+    rate_selector = Dropdown(options=('1','7', '15','21', '30','45', '50', '60', '75', '90', '100', '125', '150','182', '200','250', '300', '330', '365', '730', '1000','1500','2000','2250','3000','3182', '3652'),
+                                 value="3652",
+                                layout=Layout(width='auto'))
     text_selector = widgets.Text(
            value='Nom du modèle',
            description='NOM:', )
@@ -85,14 +88,14 @@ def affichage_carte():
         with out:
             # what happens when we press the button
             clear_output()
-            print(slider.value)
             print('Le modèle est en cours de simulation...')
             print('Cela peut prendre plusieurs minutes/heures...')
             display(HTML('''<i style="text-align:center" class="fa fa-circle-notch fa-spin fa-3x fa-fw"></i>
 <span class="sr-only">Loading...</span>'''))
             
         #state = test_xy(slider) ### Pour miner l'attente processing
-        state = launch_simu()
+        rate = rate_selector.value
+        state = launch_simu(rate)
         if state == 'end':
             button.disabled=False
             with out:
@@ -140,7 +143,7 @@ def affichage_carte():
 
     grid = GridspecLayout(4, 4, height='800px')
     grid[:, 1:3] = m
-    grid[:, 0] = VBox([text_selector,Label("CODE DU SITE:"), site_selector, Label("SIMULATION:"), modele_selector, Label("Si Transitoire:"), calendar_start, calendar_end,Label('Discrétisation temporelle (en jours):') ,slider, Label("SCENARIO:"), scenario_selector,])
+    grid[:, 0] = VBox([text_selector,Label("CODE DU SITE:"), site_selector, Label("SIMULATION:"), modele_selector, Label("Si Transitoire:"), calendar_start, calendar_end,Label('Discrétisation temporelle (en jours):') ,slider, Label("SCENARIO:"), scenario_selector,Label("RATE:"), rate_selector,])
     
     grid[:, 3] = VBox([button,out,but_calib,out_calib])
 
@@ -152,8 +155,8 @@ def test_xy(site_selector):
     state = 'end'
     return state
     
-def launch_simu():
-    model.setting(32.27, 0, 0, 10.1, None, None, None, 0, 0, 3652.0, None, None, site=3)
+def launch_simu(rate):
+    model.setting(32.27, 0, 0, 10.1, None, None, None, 0, 0, float(rate), None, None, site=3)
     state = 'end'
     return state
     

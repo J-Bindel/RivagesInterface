@@ -27,10 +27,10 @@ from simulation.custom_utils import helpers as utils
 
 # FOLDER
 folder_path = os.path.dirname(os.path.abspath(__file__)) + '/' #'/'.join(.split('/')[:-1])
-print("folder_path : ", folder_path)
+#print("folder_path : ", folder_path)
 
 # STUDY SITES
-print("folder + string : ", folder_path + "data/study_sites.txt")
+#print("folder + string : ", folder_path + "data/study_sites.txt")
 sites = pd.read_table(folder_path + "data/study_sites.txt", sep=',', header=0, index_col=0) #\\s+
 #site_number = 2 #Select site number
 # coordinates = sites._get_values[site_number,1:5]
