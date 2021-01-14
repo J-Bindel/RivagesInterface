@@ -1,0 +1,3 @@
+number,chronicle,template,
+0,Ref,input_file_ref.txt,
+1,Faouët,input_file_ref_2618.txt,

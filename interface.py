@@ -17,13 +17,12 @@ import geopandas as gpd
 from pandas import date_range
 import interface
 import model_modflow_calibration as mmc
+import simulation.settings_model as model
 
 def affichage_carte():
     m = Map(center=[49, -1], zoom=10)
-    gdf = gpd.read_file('C:/Users/alexa/Dropbox/PhD/4 - Data/ZONE_HYDROGRAPHIQUE_FXX-shp/ZONE_HYDROGRAPHIQUE_COTIER.shp',crs="EPSG:4326")
-    #surfex =gpd.read_file('C:/Users/alexa/Dropbox/Dev/Hdf_extract/DATA/maille_meteo_fr_pr93.shp',crs="EPSG:4326")
+    gdf = gpd.read_file('data/Hydro_net/ZONE_HYDROGRAPHIQUE_COTIER.shp',crs="EPSG:4326")
     gdf_wgs = gdf.to_crs(epsg=4326)
-    #surfex_wgs = surfex.to_crs(epsg=4326)
     geo_data = GeoData(geo_dataframe = gdf_wgs,
                         style={'color': 'black', 'opacity':1, 'weight':1.9, 'dashArray':'2', 'fillOpacity':0},
                         hover_style={'fillColor': 'red' , 'fillOpacity': 0.2},
@@ -38,6 +37,7 @@ def affichage_carte():
     html.layout.margin = '0px 20px 20px 20px'
     control = WidgetControl(widget=html, position='topright')
     m.add_control(control)
+    
     def update_html(feature, **kwargs):
         html.value = '''
         <h3><b>{}</b></h3>
@@ -85,17 +85,20 @@ def affichage_carte():
         with out:
             # what happens when we press the button
             clear_output()
+            print(slider.value)
             print('Le modèle est en cours de simulation...')
             print('Cela peut prendre plusieurs minutes/heures...')
-            display(HTML('''<i class="fa fa-circle-notch fa-spin fa-3x fa-fw"></i>
+            display(HTML('''<i style="text-align:center" class="fa fa-circle-notch fa-spin fa-3x fa-fw"></i>
 <span class="sr-only">Loading...</span>'''))
-        state = test_xy(slider)
+            
+        #state = test_xy(slider) ### Pour miner l'attente processing
+        state = launch_simu()
         if state == 'end':
             button.disabled=False
             with out:
                 clear_output()
-                print("La simulation s'est terminé normalement.")
-                display(HTML('''<i class="fa fa-check-square fa-3x fa-fw"></i>
+                print("La simulation s'est terminée normalement.")
+                display(HTML('''<i style="text-align:center" class="fa fa-check-square fa-3x fa-fw"></i>
                 <span class="sr-only"></span>'''))   
         if state != 'end':
             button.disabled=False
@@ -113,7 +116,7 @@ def affichage_carte():
             clear_output()
             print('La calibration est en cours de réalisation...')
             print('Cela peut prendre plusieurs minutes/heures...')
-            display(HTML('''<i class="fa fa-circle-notch fa-spin fa-3x fa-fw"></i>
+            display(HTML('''<i style="text-align:center" class="fa fa-circle-notch fa-spin fa-3x fa-fw"></i>
 <span class="sr-only">Loading...</span>'''))
         calib = mmc.calibration(site_selector.value,out_calib)
         calib.run_calibration()
@@ -121,8 +124,8 @@ def affichage_carte():
             but_calib.disabled=False
             with out_calib:
                 clear_output()
-                print("La calibration s'est terminé normalement.")
-                display(HTML('''<i class="fa fa-check-square fa-3x fa-fw"></i>
+                print("La calibration s'est terminée normalement.")
+                display(HTML('''<i style="text-align:center" class="fa fa-check-square fa-3x fa-fw"></i>
                 <span class="sr-only"></span>'''))   
         if calib.state != 'end':
             but_calib.disabled=False
@@ -146,6 +149,11 @@ def affichage_carte():
 def test_xy(site_selector):
     for i in range (0,100000000):
         a=1
+    state = 'end'
+    return state
+    
+def launch_simu():
+    model.setting(32.27, 0, 0, 10.1, None, None, None, 0, 0, 3652.0, None, None, site=3)
     state = 'end'
     return state
     

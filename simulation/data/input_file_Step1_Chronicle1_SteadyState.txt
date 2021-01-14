@@ -1,0 +1,2 @@
+stress_period	sp_length	time_step	study (0 : TS or 1 : SS)	rech
+0.0	1.0	1.0	1.0	0.0014749853001788673
