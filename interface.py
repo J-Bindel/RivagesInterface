@@ -18,6 +18,7 @@ from pandas import date_range
 import interface
 import model_modflow_calibration as mmc
 import simulation.settings_model as model
+from simulation.custom_utils import helpers as utils
 
 def affichage_carte():
     m = Map(center=[49, -1], zoom=10)
@@ -87,6 +88,9 @@ def affichage_carte():
     but_calib = Button(description='Lancer la calibaration', button_style='info', layout=Layout(height='auto', width='auto'))
     
     out = widgets.Output()
+    
+    out_info_files_simu = widgets.Output()
+    
     def on_button_clicked(_):
         button.disabled=True
         with out:
@@ -106,7 +110,23 @@ def affichage_carte():
                 clear_output()
                 print("La simulation s'est terminée normalement.")
                 display(HTML('''<i style="text-align:center" class="fa fa-check-square fa-3x fa-fw"></i>
-                <span class="sr-only"></span>'''))   
+                <span class="sr-only"></span>'''))
+            with out_info_files_simu:
+                clear_output()
+                print("La simulation s'est terminée normalement.")
+                model_name = utils.generate_model_name(0, 0, float(rate_selector.value), None, None, site=3, permeability_param=32.27)
+                print("The following files have been created:")
+                print(model_name + ".bas")
+                print(model_name + ".dis")
+                print(model_name + ".drn")
+                print(model_name + ".hds")
+                print(model_name + ".list")
+                print(model_name + ".nam")
+                print(model_name + ".nwt")
+                print(model_name + ".oc")
+                print(model_name + ".rch")
+                print(model_name + ".upw")
+                
         if state != 'end':
             button.disabled=False
             with out:
@@ -149,7 +169,7 @@ def affichage_carte():
     grid[:, 1:3] = m
     grid[:, 0] = VBox([text_selector,Label("CODE DU SITE:"), site_selector, Label("SIMULATION:"), modele_selector, Label("Si Transitoire:"), calendar_start, calendar_end,Label('Discrétisation temporelle (en jours):') ,slider, Label("SCENARIO:"), scenario_selector,Label("RATE:"), rate_selector,])
     
-    grid[:, 3] = VBox([button,out,but_calib,out_calib])
+    grid[:, 3] = VBox([button,out,but_calib,out_calib, out_info_files_simu])
 
     return grid,text_selector, site_selector,modele_selector, calendar_start, calendar_end, slider, scenario_selector, button
 
