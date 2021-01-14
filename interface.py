@@ -59,7 +59,7 @@ def affichage_carte():
                                 layout=Layout(width='auto'))
     scenario_selector = Dropdown(options=('Actuel','RCP 2.6', 'RCP 4.5','RCP 6.0','RCP 8.5'),
                                 layout=Layout(width='auto'))
-    rate_selector = Dropdown(options=('1','7', '15','21', '30','45', '50', '60', '75', '90', '100', '125', '150','182', '200','250', '300', '330', '365', '730', '1000','1500','2000','2250','3000','3182', '3652'),
+    rate_selector = Dropdown(options=('1','7', '15','21', '30','45', '50', '60', '75', '90', '100', '125', '150','182', '200','250', '300', '330', '365', '550', '640', '730', '1000','1500','2000','2250','3000','3182', '3652'),
                                  value="3652",
                                 layout=Layout(width='auto'))
     text_selector = widgets.Text(
