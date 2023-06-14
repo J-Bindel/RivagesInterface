@@ -13,12 +13,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vtk_export_grid')
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vtk_export_watertable'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vtk_export_pathlines'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'custom_utils'))
-from model_modflow import model_modflow as modflow
-from model_modpath import model_modpath as modpath
-from model_seawat import model_seawat as seawat
-from vtk_export_grid import vtk_export_grid as vtk_grid
-from vtk_export_watertable import vtk_export_watertable as vtk_watertable
-from vtk_export_pathlines import vtk_export_pathlines as vtk_pathlines
+from src.model_modflow import model_modflow as modflow
+from src.model_modpath import model_modpath as modpath
+from src.model_seawat import model_seawat as seawat
+from src.vtk_export_grid import vtk_export_grid as vtk_grid
+from src.vtk_export_watertable import vtk_export_watertable as vtk_watertable
+from src.vtk_export_pathlines import vtk_export_pathlines as vtk_pathlines
 # from custom_utils import InputFileManipulation as ifm
 from custom_utils import helpers_steady as utils
 
