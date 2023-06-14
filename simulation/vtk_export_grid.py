@@ -8,8 +8,8 @@ from osgeo import gdal
 import flopy
 from flopy.export import vtk as fv
 import flopy.utils.binaryfile as bf
-from get_geological_structure import get_geological_structure as ggs
-from src.workingFunctions import Functions # functions from the workingFunctions.py file
+from simulation.get_geological_structure import get_geological_structure as ggs
+from src.custom_utils.workingFunctions import Functions # functions from the workingFunctions.py file
 
 def vtk_export_grid(modelname, modelfolder, coord):
     print('Import Georeferences')

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import math
 import numpy as np
 from scipy.interpolate import griddata
@@ -46,7 +45,7 @@ class Functions:
         return anyLines
 
     #function that return a dictionary of z values on the vertex
-    def interpolateCelltoVertex(modDis, item):
+    def interpolateCelltoVertex(modDis,item):
         dictZVertex = {}
         for lay in modDis[item].keys():
             values = np.asarray(modDis[item][lay])

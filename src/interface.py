@@ -18,7 +18,7 @@ import numpy as np
 import geopandas as gpd
 from pandas import date_range
 import interface as interface
-import model_modflow_calibration as mmc
+import simulation.model_modflow_calibration as mmc
 import simulation.settings_model as model
 from src.custom_utils import helpers as utils
 
