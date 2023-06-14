@@ -6,9 +6,9 @@ from osgeo import gdal
 import flopy
 from flopy.export import vtk as fv
 #import vtk
-from simulation.workingFunctions import Functions  # functions from the workingFunctions.py file
+from src.workingFunctions import Functions  # functions from the workingFunctions.py file
 import flopy.utils.binaryfile as fpu
-from simulation.get_geological_structure import get_geological_structure as ggs
+from get_geological_structure import get_geological_structure as ggs
 
 def vtk_export_watertable(modelname, modelfolder, coord):
     def GetExtent(gt, geotx, geoty, cols, rows):

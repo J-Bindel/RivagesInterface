@@ -19,7 +19,7 @@ from simulation.model_seawat import model_seawat as seawat
 from simulation.vtk_export_grid import vtk_export_grid as vtk_grid
 from simulation.vtk_export_watertable import vtk_export_watertable as vtk_watertable
 from simulation.vtk_export_pathlines import vtk_export_pathlines as vtk_pathlines
-from simulation.custom_utils import helpers as utils
+from src.custom_utils import helpers as utils
 
 ########################################################################################################################
 #                                                      MODEL SETTINGS                                                  #

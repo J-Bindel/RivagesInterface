@@ -5,9 +5,10 @@ import numpy as np
 from osgeo import gdal
 import flopy
 from flopy.export import vtk as fv
-import flopy.utils.binaryfile as bf
+import flopy.utils.binaryfile
 import src.get_geological_structure as ggs
 from src.workingFunctions import Functions # functions from the workingFunctions.py file
+
 
 def vtk_export_grid(modelname, modelfolder, coord):
     print('Import Georeferences')

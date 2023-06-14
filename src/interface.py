@@ -8,6 +8,8 @@ Created on Mon Oct 21 20:20:00 2020
 """
 Interface Rivages tool
 """
+import sys
+sys.path.append('../')
 
 from ipyleaflet import Map, basemaps, basemap_to_tiles, Heatmap, TileLayer,GeoData, LayersControl,WidgetControl
 from ipywidgets import HTML, Layout, Dropdown, Output, Textarea, VBox, Label, widgets,AppLayout,GridspecLayout, Button
@@ -15,14 +17,14 @@ from IPython.display import display, Markdown, clear_output
 import numpy as np
 import geopandas as gpd
 from pandas import date_range
-import src.interface as interface
-import src.model_modflow_calibration as mmc
+import interface as interface
+import model_modflow_calibration as mmc
 import simulation.settings_model as model
-from simulation.custom_utils import helpers as utils
+from src.custom_utils import helpers as utils
 
 def affichage_carte():
     m = Map(center=[49, -1], zoom=10)
-    gdf = gpd.read_file('data/Hydro_net/ZONE_HYDROGRAPHIQUE_COTIER.shp',crs="EPSG:4326")
+    gdf = gpd.read_file('../data/Hydro_net/ZONE_HYDROGRAPHIQUE_COTIER.shp',crs="EPSG:4326")
     gdf_wgs = gdf.to_crs(epsg=4326)
     geo_data = GeoData(geo_dataframe = gdf_wgs,
                         style={'color': 'black', 'opacity':1, 'weight':1.9, 'dashArray':'2', 'fillOpacity':0},
