@@ -95,7 +95,7 @@ def update_code_site(feature, **kwargs):
         site_selector.value=feature['properties']['CODE_ZONE']
         print("feature", feature['properties']['CODE_ZONE'])
 
-def on_button_click():
+def simulation_click(_):
         simulation_button.disabled=True
         with simulation_output:
             # what happens when we press the button
@@ -106,7 +106,8 @@ def on_button_click():
     
         # Launch simulation
         rate = rate_selector.value
-        state = launch_simu(rate)
+        model_name = text_selector.value
+        state = launch_simu(model_name, rate)
 
 
         if state == 'end':
@@ -141,8 +142,8 @@ def simulation_file_produced():
 
 ## Function to run a simulation
 ## Only one parameter is needed: the rate of the simulation    
-def launch_simu(rate):
-    model.setting(32.27, 0, 0, 10.1, None, None, None, 0, 0, float(rate), None, None, site=3)
+def launch_simu(model_name, rate):
+    model.setting(model_name, 32.27, 0, 0, 10.1, None, None, None, 0, 0, float(rate), None, None, site=3)
     state = 'end'
     return state
 
@@ -172,7 +173,7 @@ def simulation_interface():
     geo_data.on_hover(region_name_and_code)
     geo_data.on_click(update_code_site)
                 
-    simulation_button.on_click(on_button_click)
+    simulation_button.on_click(simulation_click)
 
 
     grid = GridspecLayout(3, 3, height='800px')

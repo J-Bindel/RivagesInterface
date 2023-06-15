@@ -1,4 +1,6 @@
 # coding:utf-8
+
+
 import os,sys
 import pandas as pd
 import threading
@@ -40,7 +42,7 @@ theta = [0.1]  #Porosity
 geology = [0]
 time = [0]
 
-def setting(permeability, time, geology, theta, input_file, step, ref, chronicle, approx, rate, rep, steady, site=2):
+def setting(model_name, permeability, time, geology, theta, input_file, step, ref, chronicle, approx, rate, rep, steady, site=2):
     site_number = site
     row_site = sites.loc[sites['number']==site_number]
     coordinates = [row_site.iloc[0]["xmin"], row_site.iloc[0]["xmax"],row_site.iloc[0]["ymin"], row_site.iloc[0]["ymax"]]
@@ -59,7 +61,7 @@ def setting(permeability, time, geology, theta, input_file, step, ref, chronicle
     print("site_number :", site_number)
     print("site name formule :", sites.index._data[site_number])
     site_name = sites.index._data[site_number] + '/'
-    model_name = utils.generate_model_name(chronicle, approx, rate, ref, steady, site, permeability_param=permeability)
+    model_name = model_name + "_" + utils.generate_model_name(chronicle, approx, rate, ref, steady, site, permeability_param=permeability)
     if rep:
         model_name = model_name + "_" + str(rep)
 
@@ -99,7 +101,7 @@ def setting(permeability, time, geology, theta, input_file, step, ref, chronicle
         print("folder_path : ", folder_path)
         print("model_folder : ", model_folder)
         modflow(input_file, file_name=folder_path, model_name=model_name, model_folder=folder_path + "outputs/" + site_name + model_folder,
-                coord=coordinates, tdis=time_param, geo=geology_param, permea=permeability_param, thick=thickness_param, port=int(row_site["port_number"]), porosity=theta_param, ref=ref)
+                coord=coordinates, tdis=time_param, geo=geology_param, permea=permeability_param, thick=thickness_param, port=int(row_site.iloc[0]["port_number"]), porosity=theta_param, ref=ref)
     if seawat_param == 1:
         seawat(filename=folder_path,modelfolder=folder_path + site_name + model_folder, modelname=model_name)
     if modpath_param == 1:
