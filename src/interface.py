@@ -15,9 +15,9 @@ sys.path.append('../')
 from ipyleaflet import Map, GeoData, LayersControl, WidgetControl
 from ipywidgets import HTML, Layout, Dropdown, VBox, Label, widgets, GridspecLayout, Button
 from IPython.display import clear_output
+import pandas as pd
 import geopandas as gpd
 import interface as interface
-import simulation.model_modflow_calibration as mmc
 import simulation.settings_model as model
 from src.custom_utils import helpers as utils
 
@@ -39,8 +39,9 @@ gdf = gpd.read_file('../data/Hydro_net/ZONE_HYDROGRAPHIQUE_COTIER.shp',crs="EPSG
 text_selector = widgets.Text(value='Nom du modèle', description='Nom : ')
 
 ### Site selector
-site_label = Label("CODE DU SITE:")
-site_selector = Dropdown(options=gdf.CODE_ZONE, layout=Layout(width='auto'))
+sites_df = pd.read_table('../simulation/data/study_sites.txt', sep=',', index_col=1)
+site_label = Label("Nom du site : ")
+site_selector = Dropdown(options=sites_df.sites, layout=Layout(width='auto'))
 
 ### Model selector
 simulation_type_label = Label("Type de simulation:")
@@ -107,7 +108,8 @@ def simulation_click(_):
         # Launch simulation
         rate = rate_selector.value
         model_name = text_selector.value
-        state = launch_simu(model_name, rate)
+        site_number = sites_df[sites_df.sites == site_selector.value].index[0]
+        state = launch_simu(model_name, site_number, rate)
 
 
         if state == 'end':
@@ -127,7 +129,7 @@ def simulation_click(_):
                 print(simulation_state_4)
 
 def simulation_file_produced(): 
-    model_name = text_selector.value
+    model_name = text_selector.value + "_"
     model_name += utils.generate_model_name(0, 0, float(rate_selector.value), None, None, site=3, permeability_param=32.27)
     print(model_name + ".bas")
     print(model_name + ".dis")
@@ -142,8 +144,8 @@ def simulation_file_produced():
 
 ## Function to run a simulation
 ## Only one parameter is needed: the rate of the simulation    
-def launch_simu(model_name, rate):
-    model.setting(model_name, 32.27, 0, 0, 10.1, None, None, None, 0, 0, float(rate), None, None, site=3)
+def launch_simu(model_name, site_number, rate):
+    model.setting(model_name, 32.27, 0, 0, 10.1, None, None, None, 0, 0, float(rate), None, None, site_number)
     state = 'end'
     return state
 
