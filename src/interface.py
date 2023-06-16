@@ -43,7 +43,7 @@ pathlines = 0
 
 # /!\/!\ FOR THE CONTROL PANEL, SEE DOWN BELOW /!\/!\
 
-header = HTML("<h1>Paramétrage du modèle</h1>", layout=Layout(height='auto'))
+header = HTML("<h1 style=\"text-align: center;\">Paramétrage du modèle</h1><br>", layout=Layout(height='auto'))
 
 map = Map(center=[49.3, -1.2333], zoom=10)
 map_html = HTML('''Glissez le curseur sur le bassin versant pour afficher le code''')
@@ -109,7 +109,7 @@ def region_name_and_code(feature, **kwargs):
         <p>Code de la zone à modéliser: {}</p> 
         '''.format(wording, code)
         map_html.layout.height = '100px'
-        map_html.layout.width = '540px'
+        map_html.layout.width = '380px'
 
 
 ## Function to set the code site when the user clicks on the map
@@ -203,11 +203,29 @@ def simulation_interface():
     simulation_button.on_click(simulation_click)
 
 
-    grid = GridspecLayout(3, 3, height='1200px')
-    grid[0:2, 0:2] = map
-    grid[0:2, 2] = VBox([header, text_selector, site_label, site_selector, simulation_type_label, model_type_selector, date_selector_label, calendar_start, calendar_end, simulation_frequency_label, rate_selector])
+    # Creating a grid of 4 rows and 4 columns
+    grid = GridspecLayout(4, 4, height='1200px')
+
+    ## The first two columns are used to display the map
+    grid[0:3, 0:2] = map
+
+    ## The third and the fourth columns are used to display the control panel
+
+    ### The first two row and last two columns are used to display the header, the model name selector, the model type and the date selector
+    grid[0:2, 2:4] = VBox([header, text_selector, simulation_type_label, model_type_selector, date_selector_label, calendar_start, calendar_end])
+                        
+
+    ### The third row are divided in two columns
+
+    #### The first column is used to display the site selector
+    grid[2, 2] = VBox([site_label, site_selector])
+
+    #### The second column is used to display the rate selector
+    grid[2, 3] = VBox([simulation_frequency_label, rate_selector])
     
-    grid[2, 0:2] = VBox([simulation_button, simulation_output, simulation_files_output])
+    ### Finally, the last row is used to display the simulation button and the simulation output
+    grid[3, :] = VBox([simulation_button, simulation_output, simulation_files_output])
+
     return grid
 
 # An other global variable
