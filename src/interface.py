@@ -44,7 +44,6 @@ pathlines = 0
 # /!\/!\ FOR THE CONTROL PANEL, SEE DOWN BELOW /!\/!\
 
 header = HTML("<h1>Paramétrage du modèle</h1>", layout=Layout(height='auto'))
-header.style.text_align='center'
 
 map = Map(center=[49.3, -1.2333], zoom=10)
 map_html = HTML('''Glissez le curseur sur le bassin versant pour afficher le code''')
@@ -134,7 +133,7 @@ def simulation_click(_):
         rate = rate_selector.value
         model_name = text_selector.value
         site_number = sites_df[sites_df.sites == site_selector.value].index[0]
-        
+
         state = launch_simu(model_name, site_number, permability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines)
 
 
@@ -204,7 +203,7 @@ def simulation_interface():
     simulation_button.on_click(simulation_click)
 
 
-    grid = GridspecLayout(3, 3, height='800px')
+    grid = GridspecLayout(3, 3, height='1200px')
     grid[0:2, 0:2] = map
     grid[0:2, 2] = VBox([header, text_selector, site_label, site_selector, simulation_type_label, model_type_selector, date_selector_label, calendar_start, calendar_end, simulation_frequency_label, rate_selector])
     
