@@ -5,7 +5,6 @@ import os,sys
 sys.path.append('../')
 
 import pandas as pd
-import argparse
 from simulation.model_modflow import model_modflow as modflow
 from simulation.model_modpath import model_modpath as modpath
 from simulation.model_seawat import model_seawat as seawat
@@ -41,25 +40,24 @@ modflow_information_3 = "Chemin vers le modèle : "
 
 ## Main function
 ### @param model_name: name of the model
+### @param site_number: number of the site
 ### @param permeability: permeability of the soil
     #### m²/d | only if geology = 0
-### @param time: time discretization
-    #### 0: chronicle | 1: mean (1 day Steady State) | 2: min (1 day SS) | 3: max (1 day SS)
-### @param geology: geology of the soil
-    #### 0: homogeneous geology | 1: heterogeneous geology
 ### @param theta: porosity of the soil
     #### Porosity in %
-### @param input_file: input file
-### @param step: step of the simulation
+### @param geology: geology of the soil
+    #### 0: homogeneous geology | 1: heterogeneous geology
+### @param thickness: thickness of the soil
+    #### 0: homogeneous thickness | 1: flat bottom (heterogeneous thickness)
+### @param time: time discretization
+    #### 0: chronicle | 1: mean (1 day Steady State) | 2: min (1 day SS) | 3: max (1 day SS)
 ### @param ref: reference
 ### @param chronicle: chronicle
 ### @param approx: approximation
 ### @param rate: frequency of the simulation
 ### @param rep: repetition
 ### @param steady: steady state
-### @param site_number: number of the site
-### @param thickness: thickness of the soil
-    #### 0: homogeneous thickness | 1: flat bottom (heterogeneous thickness)
+### @param input_file: input file
 ### @param modflow_enabled: modflow enabled
     #### 0: disabled | 1: enabled
 ### @param seawat_enabled: seawat enabled
@@ -70,7 +68,7 @@ modflow_information_3 = "Chemin vers le modèle : "
     #### 0: disabled | 1: enabled
 ### @param pathlines: pathlines
     #### 0: disabled | 1: enabled
-def setting(model_name, permeability, time, geology, theta, input_file, step, ref, chronicle, approx, rate, rep, steady, site_number, thickness=1, modflow_enabled=1, seawat_enabled=0, grid=0, watertable=0, pathlines=0):
+def setting(model_name, site_number, permeability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines):
 
     # Site and coordinates
     site = sites.loc[sites['number']==site_number]
@@ -121,7 +119,7 @@ def setting(model_name, permeability, time, geology, theta, input_file, step, re
         seawat(filename=folder_path,modelfolder=folder_path + site_path + model_folder, modelname=model_path)
 
     # Create and run Modpath model
-    if model_path == 1:
+    if modpath_enabled == 1:
         modpath(filename=folder_path, modelname=model_path + '_swt', modelfolder=folder_path + site_path + model_folder)
 
     # Create output files
@@ -144,43 +142,3 @@ def print_modflow_information(input_file, model_folder):
     print(modflow_information_1, input_file)
     print(modflow_information_2, folder_path)
     print(modflow_information_3, model_folder)
-
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--inputfile", type=str, required=False)
-    parser.add_argument("-ts", "--timestep", type=int, required=False)
-    parser.add_argument("-ref", "--reference", action='store_true')
-    parser.add_argument("-chr", "--chronicle", type=int, required=True)
-    parser.add_argument("-site", "--site", type=int, required=False)
-    parser.add_argument("-rate", "--rate", type=float, required=False)
-    parser.add_argument("-approx", '--approximation', type=int, required=False)
-    parser.add_argument("-rep", '--rep', type=int, required=False)
-    parser.add_argument("-perm", "--permeability", type=float, required=False)
-    parser.add_argument("-sd", "--steady", type=int, required=False)
-    args = parser.parse_args()
-
-    input_file = args.inputfile
-    step = args.timestep
-    rate = args.rate
-    reference = args.reference
-    site=args.site
-    chronicle = args.chronicle
-    approx = args.approximation
-    rep=args.rep
-    perm = args.permeability
-    steady=args.steady 
-
-    if rep==0:
-        rep=None
-
-    if site:
-        if perm:
-            setting(perm, time[0], geology[0], theta[0], input_file, step, reference, chronicle, approx, rate, rep, steady, site=site)
-        else:
-            setting(permeability[0], time[0], geology[0], theta[0], input_file, step, reference, chronicle, approx, rate, rep, steady, site=site)
-    else:
-        if perm:
-            setting(perm, time[0], geology[0], theta[0], input_file, step, reference, chronicle, approx, rate, rep, steady)
-        else:
-            setting(permeability[0], time[0], geology[0], theta[0], input_file, step, reference, chronicle, approx, rate, rep, steady)
