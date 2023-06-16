@@ -41,7 +41,7 @@ text_selector = widgets.Text(value='Nom du modèle', description='Nom : ')
 ### Site selector
 sites_df = pd.read_table('../simulation/data/study_sites.txt', sep=',', index_col=1)
 site_label = Label("Nom du site : ")
-site_selector = Dropdown(options=sites_df.sites, layout=Layout(width='auto'))
+site_selector = Dropdown(options=sites_df.iloc[1:, 0], layout=Layout(width='auto')) # Excluding the first line which has no port number
 
 ### Model selector
 simulation_type_label = Label("Type de simulation:")
@@ -106,7 +106,7 @@ def update_code_site(feature, **kwargs):
 def simulation_click(_):
         simulation_button.disabled=True
         with simulation_output:
-            
+
             # what happens when we press the button
             clear_output()
             print(simulation_state_1_1)
