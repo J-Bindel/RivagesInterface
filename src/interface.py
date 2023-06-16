@@ -23,6 +23,23 @@ from src.custom_utils import helpers as utils
 
 # Global variables
 
+## Model parameters
+permability = 32.27
+theta = 10.1
+geology = 0
+thickness = 1
+time = 0
+ref = None
+chronicle = 0
+approx = 0
+rep = None
+steady = None
+input_file = None
+modflow_enabled = 1
+seawat_enabled = 0
+grid = 0
+watertable = 0
+pathlines = 0
 
 # /!\/!\ FOR THE CONTROL PANEL, SEE DOWN BELOW /!\/!\
 
@@ -117,7 +134,8 @@ def simulation_click(_):
         rate = rate_selector.value
         model_name = text_selector.value
         site_number = sites_df[sites_df.sites == site_selector.value].index[0]
-        state = launch_simu(model_name, site_number, rate)
+        
+        state = launch_simu(model_name, site_number, permability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines)
 
 
         if state == 'end':
@@ -152,8 +170,8 @@ def simulation_file_produced():
     print(model_name + ".upw")
 
 ## Function to run a simulation    
-def launch_simu(model_name, site_number, rate):
-    model.setting(model_name, 32.27, 0, 0, 10.1, None, None, None, 0, 0, float(rate), None, None, site_number)
+def launch_simu(model_name, site_number, permability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines):
+    model.setting(model_name, site_number, permability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines)
     state = 'end'
     return state
 
