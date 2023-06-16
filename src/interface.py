@@ -70,6 +70,7 @@ simulation_output = widgets.Output()
 simulation_files_output = widgets.Output()
 
 ## Simulation state
+## Used in the simulation click function
 simulation_state_1_1 = 'Le modèle est en cours de simulation...'
 simulation_state_1_2 = 'Cela peut prendre plusieurs minutes/heures...'
 simulation_state_1_3 = 'Veuillez patienter...'
@@ -78,6 +79,8 @@ simulation_state_3 = 'Les fichiers suivants ont été créés :'
 simulation_state_4 = 'La simulation a rencontré un problème.'
 
 # Functions
+
+## Function to provide information on the selected site
 def region_name_and_code(feature, **kwargs):
         if feature is None: 
              wording = 'Glissez le curseur sur le bassin versant pour afficher le code'
@@ -92,10 +95,14 @@ def region_name_and_code(feature, **kwargs):
         map_html.layout.height = '100px'
         map_html.layout.width = '540px'
 
+
+## Function to set the code site when the user clicks on the map
 def update_code_site(feature, **kwargs):
         site_selector.value=feature['properties']['CODE_ZONE']
         print("feature", feature['properties']['CODE_ZONE'])
 
+
+## Function to add an event on the simulation button
 def simulation_click(_):
         simulation_button.disabled=True
         with simulation_output:
@@ -128,6 +135,7 @@ def simulation_click(_):
                 clear_output()
                 print(simulation_state_4)
 
+## Auxiliary function to print the files produced by the simulation
 def simulation_file_produced(): 
     model_name = text_selector.value + "_"
     model_name += utils.generate_model_name(0, 0, float(rate_selector.value), None, None, site=3, permeability_param=32.27)
@@ -142,8 +150,7 @@ def simulation_file_produced():
     print(model_name + ".rch")
     print(model_name + ".upw")
 
-## Function to run a simulation
-## Only one parameter is needed: the rate of the simulation    
+## Function to run a simulation    
 def launch_simu(model_name, site_number, rate):
     model.setting(model_name, 32.27, 0, 0, 10.1, None, None, None, 0, 0, float(rate), None, None, site_number)
     state = 'end'
@@ -185,4 +192,7 @@ def simulation_interface():
     grid[2, 0:2] = VBox([simulation_button, simulation_output, simulation_files_output])
     return grid
 
+# An other global variable
+## Used to display the generate the control panel 
+##    in the Jupyter notebook
 control_panel = simulation_interface()
