@@ -106,6 +106,7 @@ def update_code_site(feature, **kwargs):
 def simulation_click(_):
         simulation_button.disabled=True
         with simulation_output:
+            
             # what happens when we press the button
             clear_output()
             print(simulation_state_1_1)
