@@ -2,19 +2,10 @@
 
 
 import os,sys
-import pandas as pd
-import threading
-import subprocess
-import argparse
+sys.path.append('../')
 
-# Custom imports
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'model_modflow'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'model_modpath'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'model_seawat'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vtk_export_grid'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vtk_export_watertable'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'vtk_export_pathlines'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'custom_utils'))
+import pandas as pd
+import argparse
 from simulation.model_modflow import model_modflow as modflow
 from simulation.model_modpath import model_modpath as modpath
 from simulation.model_seawat import model_seawat as seawat
@@ -23,101 +14,133 @@ from simulation.vtk_export_watertable import vtk_export_watertable as vtk_watert
 from simulation.vtk_export_pathlines import vtk_export_pathlines as vtk_pathlines
 from src.custom_utils import helpers as utils
 
-########################################################################################################################
-#                                                      MODEL SETTINGS                                                  #
-########################################################################################################################
+# Global variables
 
-# FOLDER
-folder_path = os.path.dirname(os.path.abspath(__file__)) + '/' #'/'.join(.split('/')[:-1])
-#print("folder_path : ", folder_path)
 
-# STUDY SITES
-#print("folder + string : ", folder_path + "data/study_sites.txt")
-sites = pd.read_table(folder_path + "data/study_sites.txt", sep=',', header=0, index_col=0) #\\s+
-#site_number = 2 #Select site number
-# coordinates = sites._get_values[site_number,1:5]
+folder_path = os.path.dirname(os.path.abspath(__file__)) + '/' 
 
-permeability = [8.64] #0.864  #K  ## Ref = 86.4
-theta = [0.1]  #Porosity
+sites = pd.read_table(folder_path + "data/study_sites.txt", sep=',', header=0, index_col=0) 
+
+## Model parameters
+permeability = [8.64] ###Ref = 86.4
+theta = [0.1]  ###Porosity
 geology = [0]
 time = [0]
 
-def setting(model_name, permeability, time, geology, theta, input_file, step, ref, chronicle, approx, rate, rep, steady, site=2):
-    site_number = site
-    row_site = sites.loc[sites['number']==site_number]
-    coordinates = [row_site.iloc[0]["xmin"], row_site.iloc[0]["xmax"],row_site.iloc[0]["ymin"], row_site.iloc[0]["ymax"]]
-   # coordinates = sites._get_values[site_number,1:5]
+## Model information
+information_1 = "Numéro du site : "
+infromation_2 = "Nom du site : "
 
-    # TIME DISCRETIZATION
-    time_param = time  # 0: chronicle | 1: mean (1 day Steady State) | 2: min (1 day SS) | 3: max (1 day SS)
+## Modflow information
+modflow_information_1 = "Fichier : "
+modflow_information_2 = "Chemin du dossier : "
+modflow_information_3 = "Chemin vers le modèle : "
 
-    # STRUCTURE
-    geology_param = geology  # 0: homogeneous geology | 1: heterogeneous geology
-    permeability_param = permeability  # m^2/d | only if geology_param = 0
-    theta_param = theta # Porosity in %
-    thickness_param = 1  # 0: homogeneous thickness | 1: flat bottom (heterogeneous thickness)
 
-    # MODEL NAME
-    print("site_number :", site_number)
-    print("site name formule :", sites.index._data[site_number])
-    site_name = sites.index._data[site_number] + '/'
-    model_name = model_name + "_" + utils.generate_model_name(chronicle, approx, rate, ref, steady, site, permeability_param=permeability)
-    if rep:
-        model_name = model_name + "_" + str(rep)
+# Functions
 
-    model_folder = model_name + '/'
+## Main function
+### @param model_name: name of the model
+### @param permeability: permeability of the soil
+    #### m²/d | only if geology = 0
+### @param time: time discretization
+    #### 0: chronicle | 1: mean (1 day Steady State) | 2: min (1 day SS) | 3: max (1 day SS)
+### @param geology: geology of the soil
+    #### 0: homogeneous geology | 1: heterogeneous geology
+### @param theta: porosity of the soil
+    #### Porosity in %
+### @param input_file: input file
+### @param step: step of the simulation
+### @param ref: reference
+### @param chronicle: chronicle
+### @param approx: approximation
+### @param rate: frequency of the simulation
+### @param rep: repetition
+### @param steady: steady state
+### @param site_number: number of the site
+### @param thickness: thickness of the soil
+    #### 0: homogeneous thickness | 1: flat bottom (heterogeneous thickness)
+def setting(model_name, permeability, time, geology, theta, input_file, step, ref, chronicle, approx, rate, rep, steady, site_number, thickness=1):
 
+    # Site and coordinates
+    site = sites.loc[sites['number']==site_number]
+    site_name = sites.index._data[site_number]
+    coordinates = [site.iloc[0]["xmin"], site.iloc[0]["xmax"], site.iloc[0]["ymin"], site.iloc[0]["ymax"]]
+    
 
     
-    if (input_file is None):
+    print_model_info(site_number)
+
+    site_path = site_name + '/'
+
+    model_path = model_name + "_" + utils.generate_model_name(chronicle, approx, rate, ref, steady, site_number, permeability=permeability)
+
+    if rep:
+        model_path = model_path + "_" + str(rep)
+
+    model_folder = model_path + '/'
+
+
+    if input_file is None:
         if ref:
             chronicle_file = pd.read_table(folder_path + "data/chronicles.txt", sep=',', header=0, index_col=0)
             input_file = chronicle_file.template[chronicle]
 
         else:
-            #input_name = utils.generate_model_name(chronicle, approx, rate, ref=False, steady=steady, permeability_param=permeability)
-            input_file = utils.get_input_file_name(chronicle, approx, rate, ref, steady, site=None, step=None)
-            #input_file = "input_file_" + input_name + ".txt" ## CHANGE the _no_agg !! + "_no_agg" 
-        
+            input_file = utils.get_input_file_name(chronicle, approx, rate, ref, steady, site_number=None, step=None)   
     
-    # SIMULATION
+    # Simulation
     modflow_param = 1  # 0: disabled | 1: enabled
     seawat_param = 0  # 0: disabled | 1: enabled
-    if time ==1:
+
+    if time == 1:
         modpath_param = 1  # 0: disabled | 1: enabled
     else:
         modpath_param = 0
-        # VTK OUTPUT
+
+    # Vtk output
     grid = 0  # 0: disabled | 1: enabled
     watertable = 0  # 0: disabled | 1: enabled
     pathlines = 0 # 0: disabled | 1: enabled
 
-    #print(input_file)
-    print(folder_path)
-    # CREATE AND RUN MODFLOW MODEL - SEAWAT MODEL - MODPATH MODEL
+    # Create and run Modflow model
     if modflow_param == 1:
-        print("file :" + input_file)
-        print("site_name : ", site_name)
-        print("folder_path : ", folder_path)
-        print("model_folder : ", model_folder)
-        modflow(input_file, file_name=folder_path, model_name=model_name, model_folder=folder_path + "outputs/" + site_name + model_folder,
-                coord=coordinates, tdis=time_param, geo=geology_param, permea=permeability_param, thick=thickness_param, port=int(row_site.iloc[0]["port_number"]), porosity=theta_param, ref=ref)
+        # Information about the model
+        print_modflow_information(input_file, model_folder)
+
+        # Run the model
+        modflow(input_file, file_name=folder_path, model_name=model_path, model_folder=folder_path + "outputs/" + site_path + model_folder,
+                coord=coordinates, tdis=time, geo=geology, permea=permeability, thick=thickness, port=int(site.iloc[0]["port_number"]), porosity=theta, ref=ref)
+        
+    # Create and run Seawat model
     if seawat_param == 1:
-        seawat(filename=folder_path,modelfolder=folder_path + site_name + model_folder, modelname=model_name)
+        seawat(filename=folder_path,modelfolder=folder_path + site_path + model_folder, modelname=model_path)
+
+    # Create and run Modpath model
     if modpath_param == 1:
-        modpath(filename=folder_path, modelname=model_name + '_swt', modelfolder=folder_path + site_name + model_folder)
+        modpath(filename=folder_path, modelname=model_path + '_swt', modelfolder=folder_path + site_path + model_folder)
 
-    # CREATE OUTPUT FILES
-    if not os.path.exists(folder_path + "outputs/" + site_name + model_folder + 'output_files'):
-        os.makedirs(folder_path+ "outputs/" + site_name + model_folder + 'output_files')
+    # Create output files
+    if not os.path.exists(folder_path + "outputs/" + site_path + model_folder + 'output_files'):
+        os.makedirs(folder_path+ "outputs/" + site_path + model_folder + 'output_files')
+
+    
     if grid == 1:
-        vtk_grid(modelname=model_name, modelfolder=folder_path + "outputs/" + site_name + model_folder, coord=coordinates)
+        vtk_grid(modelname=model_path, modelfolder=folder_path + "outputs/" + site_path + model_folder, coord=coordinates)
     if watertable == 1:
-        vtk_watertable(modelname=model_name, modelfolder=folder_path + "outputs/" + site_name + model_folder, coord=coordinates)
+        vtk_watertable(modelname=model_path, modelfolder=folder_path + "outputs/" + site_path + model_folder, coord=coordinates)
     if pathlines == 1:
-        vtk_pathlines(modelname=model_name + '_swt', modelfolder=folder_path + "outputs/" + site_name + model_folder, coord=coordinates)
+        vtk_pathlines(modelname=model_path + '_swt', modelfolder=folder_path + "outputs/" + site_path + model_folder, coord=coordinates)
 
+def print_model_info(site_number):
+    print(information_1, site_number)
+    print(infromation_2, sites.index._data[site_number])
+    print(folder_path)
 
+def print_modflow_information(input_file, model_folder):
+    print(modflow_information_1, input_file)
+    print(modflow_information_2, folder_path)
+    print(modflow_information_3, model_folder)
 
 if __name__ == '__main__':
 
