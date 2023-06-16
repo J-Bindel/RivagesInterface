@@ -60,27 +60,36 @@ modflow_information_3 = "Chemin vers le modèle : "
 ### @param site_number: number of the site
 ### @param thickness: thickness of the soil
     #### 0: homogeneous thickness | 1: flat bottom (heterogeneous thickness)
-def setting(model_name, permeability, time, geology, theta, input_file, step, ref, chronicle, approx, rate, rep, steady, site_number, thickness=1):
+### @param modflow_enabled: modflow enabled
+    #### 0: disabled | 1: enabled
+### @param seawat_enabled: seawat enabled
+    #### 0: disabled | 1: enabled
+### @param grid: grid
+    #### 0: disabled | 1: enabled
+### @param watertable: watertable
+    #### 0: disabled | 1: enabled
+### @param pathlines: pathlines
+    #### 0: disabled | 1: enabled
+def setting(model_name, permeability, time, geology, theta, input_file, step, ref, chronicle, approx, rate, rep, steady, site_number, thickness=1, modflow_enabled=1, seawat_enabled=0, grid=0, watertable=0, pathlines=0):
 
     # Site and coordinates
     site = sites.loc[sites['number']==site_number]
     site_name = sites.index._data[site_number]
+    site_path = site_name + '/'
     coordinates = [site.iloc[0]["xmin"], site.iloc[0]["xmax"], site.iloc[0]["ymin"], site.iloc[0]["ymax"]]
     
 
     
     print_model_info(site_number)
 
-    site_path = site_name + '/'
-
+    # Model path and folder
     model_path = model_name + "_" + utils.generate_model_name(chronicle, approx, rate, ref, steady, site_number, permeability_param=permeability)
-
     if rep:
         model_path = model_path + "_" + str(rep)
-
     model_folder = model_path + '/'
 
 
+    # Input file
     if input_file is None:
         if ref:
             chronicle_file = pd.read_table(folder_path + "data/chronicles.txt", sep=',', header=0, index_col=0)
@@ -89,22 +98,17 @@ def setting(model_name, permeability, time, geology, theta, input_file, step, re
         else:
             input_file = utils.get_input_file_name(chronicle, approx, rate, ref, steady, site=None, step=None)   
     
-    # Simulation
-    modflow_param = 1  # 0: disabled | 1: enabled
-    seawat_param = 0  # 0: disabled | 1: enabled
 
+    # Modpath enabled ?
+        # 0: disabled | 1: enabled
     if time == 1:
-        modpath_param = 1  # 0: disabled | 1: enabled
+        modpath_enabled = 1  
     else:
-        modpath_param = 0
-
-    # Vtk output
-    grid = 0  # 0: disabled | 1: enabled
-    watertable = 0  # 0: disabled | 1: enabled
-    pathlines = 0 # 0: disabled | 1: enabled
+        modpath_enabled = 0
 
     # Create and run Modflow model
-    if modflow_param == 1:
+    if modflow_enabled == 1:
+
         # Information about the model
         print_modflow_information(input_file, model_folder)
 
@@ -113,11 +117,11 @@ def setting(model_name, permeability, time, geology, theta, input_file, step, re
                 coord=coordinates, tdis=time, geo=geology, permea=permeability, thick=thickness, port=int(site.iloc[0]["port_number"]), porosity=theta, ref=ref)
         
     # Create and run Seawat model
-    if seawat_param == 1:
+    if seawat_enabled == 1:
         seawat(filename=folder_path,modelfolder=folder_path + site_path + model_folder, modelname=model_path)
 
     # Create and run Modpath model
-    if modpath_param == 1:
+    if model_path == 1:
         modpath(filename=folder_path, modelname=model_path + '_swt', modelfolder=folder_path + site_path + model_folder)
 
     # Create output files
