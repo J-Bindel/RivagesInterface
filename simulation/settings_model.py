@@ -22,8 +22,8 @@ folder_path = os.path.dirname(os.path.abspath(__file__)) + '/'
 sites = pd.read_table(folder_path + "data/study_sites.txt", sep=',', header=0, index_col=0) 
 
 ## Model parameters
-permeability = [8.64] ###Ref = 86.4
-theta = [0.1]  ###Porosity
+permeability = [8.64] ### Ref = 86.4
+theta = [0.1]  ### Porosity
 geology = [0]
 time = [0]
 
@@ -32,7 +32,7 @@ information_1 = "Numéro du site : "
 infromation_2 = "Nom du site : "
 
 ## Modflow information
-modflow_information_1 = "Fichier : "
+modflow_information_1 = "Fichier d'entrée : "
 modflow_information_2 = "Chemin du dossier : "
 modflow_information_3 = "Chemin vers le modèle : "
 
@@ -73,7 +73,7 @@ def setting(model_name, permeability, time, geology, theta, input_file, step, re
 
     site_path = site_name + '/'
 
-    model_path = model_name + "_" + utils.generate_model_name(chronicle, approx, rate, ref, steady, site_number, permeability=permeability)
+    model_path = model_name + "_" + utils.generate_model_name(chronicle, approx, rate, ref, steady, site_number, permeability_param=permeability)
 
     if rep:
         model_path = model_path + "_" + str(rep)
@@ -87,7 +87,7 @@ def setting(model_name, permeability, time, geology, theta, input_file, step, re
             input_file = chronicle_file.template[chronicle]
 
         else:
-            input_file = utils.get_input_file_name(chronicle, approx, rate, ref, steady, site_number=None, step=None)   
+            input_file = utils.get_input_file_name(chronicle, approx, rate, ref, steady, site=None, step=None)   
     
     # Simulation
     modflow_param = 1  # 0: disabled | 1: enabled
@@ -135,7 +135,6 @@ def setting(model_name, permeability, time, geology, theta, input_file, step, re
 def print_model_info(site_number):
     print(information_1, site_number)
     print(infromation_2, sites.index._data[site_number])
-    print(folder_path)
 
 def print_modflow_information(input_file, model_folder):
     print(modflow_information_1, input_file)
