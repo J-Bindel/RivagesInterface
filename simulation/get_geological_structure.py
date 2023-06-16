@@ -49,7 +49,7 @@ def get_clip_dem(coord):
 
 def save_clip_lidar(site_number):
     forestcover = os.path.dirname(os.path.abspath(__file__)) + "/data/Lidar1m.tif"
-    sites = pd.read_table(os.path.dirname(os.path.abspath(__file__)) + "/data/study_sites.txt", sep='\s+', header=0, index_col=0)
+    sites = pd.read_table(os.path.dirname(os.path.abspath(__file__)) + "/data/study_sites.txt", sep=',', header=0, index_col=1)
     coord = sites._get_values[site_number, 1:5]
     save_clip_dem(site_number)
     site_name = sites.axes[0][site_number]
@@ -67,7 +67,7 @@ def save_clip_lidar(site_number):
 
 def save_clip_mnt5m(site_number):
     forestcover = os.path.dirname(os.path.abspath(__file__)) + "/data/MNT5m.tif"
-    sites = pd.read_table(os.path.dirname(os.path.abspath(__file__)) + "/data/study_sites.txt", sep='\s+', header=0, index_col=0)
+    sites = pd.read_table(os.path.dirname(os.path.abspath(__file__)) + "/data/study_sites.txt", sep=',', header=0, index_col=1)
     coord = sites._get_values[site_number, 1:5]
     save_clip_dem(site_number)
     site_name = sites.axes[0][site_number]
@@ -84,7 +84,7 @@ def save_clip_mnt5m(site_number):
     subprocess.check_call(warp_cmd)
 
 def save_clip_dem(site_number):
-    sites = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + "/data/study_sites.txt", sep=',', header=0, index_col=0)
+    sites = pd.read_csv(os.path.dirname(os.path.abspath(__file__)) + "/data/study_sites.txt", sep=',', header=0, index_col=1)
     coord = sites._get_values[site_number, 1:5]
     print(coord)
     geot, geotx, geoty, demData = get_clip_dem(coord)
