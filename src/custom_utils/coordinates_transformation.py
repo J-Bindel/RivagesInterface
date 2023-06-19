@@ -34,6 +34,14 @@ def convert_coordinates_to_lat_long(x, y):
     return transform.TransformPoint(x, y)
 
 def convert_site_coordinate():
+    """
+    Function to convert the coordinates of the sites to lat/long
+
+    Returns
+    -------
+    sites_GPS : pandas.DataFrame
+        Dataframe containing the sites with their 4 coordinate corners
+    """
     sites_GPS = pd.DataFrame(columns=['sites', 'number', 'lat_min', 'long_min', 'lat_max', 'long_max', 'port_number'])
     for index, row in sites.iterrows():
         # Getting the coordinates
