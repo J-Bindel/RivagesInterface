@@ -26,7 +26,7 @@ def find_biggest_city(x_min, y_min, x_max, y_max):
         The name of the biggest city
     """
     # Reading the file 
-    df = pd.read_csv(data_path+"pop_and_GPS.csv", sep=",")
+    df = pd.read_csv(data_path+"pop_and_GPS.csv", sep=",", dtype={'CODDEP': str})
 
     # Filtering the dataframe
     df = df[(df['longitude'] >= x_min) & (df['longitude'] <= x_max) & (df['latitude'] >= y_min) & (df['latitude'] <= y_max)]
