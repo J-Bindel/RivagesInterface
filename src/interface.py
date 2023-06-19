@@ -12,7 +12,10 @@ Interface Rivages tool
 import sys
 sys.path.append('../')
 
-from ipyleaflet import Map, GeoData, LayersControl, WidgetControl
+from ipyleaflet import (
+    Map, Marker, TileLayer, ImageOverlay, Polyline, Circle, CircleMarker, Rectangle, GeoJSON, DrawControl,
+    GeoData, LayersControl, WidgetControl
+)
 from ipywidgets import HTML, Layout, Dropdown, VBox, Label, widgets, GridspecLayout, Button
 from IPython.display import clear_output
 import pandas as pd
@@ -20,6 +23,7 @@ import geopandas as gpd
 import interface as interface
 import simulation.settings_model as model
 from src.custom_utils import helpers as utils
+from src.custom_utils import find_biggest_city as fbc
 
 # Global variables
 
@@ -47,7 +51,8 @@ header = HTML("<h1 style=\"text-align: center;\">Paramétrage du modèle</h1><br
 
 map = Map(center=[49.3, -1.2333], zoom=10)
 map_html = HTML('''Glissez le curseur sur le bassin versant pour afficher le code''')
-gdf = gpd.read_file('../simulation/data/study_sites.gpkg', layer='sites')
+rect_color = '#A52A2A'
+myDrawControl = DrawControl(rectangle={'shapeOptions':{'color': rect_color}})
 
 ## Selectors
 
@@ -55,9 +60,13 @@ gdf = gpd.read_file('../simulation/data/study_sites.gpkg', layer='sites')
 text_selector = widgets.Text(value='Nom du modèle', description='Nom : ')
 
 ### Site selector
-sites_df = pd.read_table('../simulation/data/study_sites.txt', sep=',', index_col=1)
-site_label = Label("Nom du site : ")
-site_selector = Dropdown(options=sites_df.iloc[1:, 0], layout=Layout(width='auto')) # Excluding the first line which has no port number
+coordinates_label = Label("Les coordonnées courantes du site sont : ")
+instructions_label = Label("Veuillez dessiner un rectangle sur la carte pour les actualiser.")
+vertice_ll = Label("0.0")
+vertice_ul = Label("0.0")
+vertice_ur = Label("0.0")
+vertice_lr = Label("0.0")
+city_label = Label()
 
 ### Model selector
 simulation_type_label = Label("Type de simulation:")
@@ -96,25 +105,53 @@ simulation_state_4 = 'La simulation a rencontré un problème.'
 
 # Functions
 
-## Function to provide information on the selected site
-def region_name_and_code(feature, **kwargs):
-        if feature is None: 
-             wording = 'Glissez le curseur sur le bassin versant pour afficher le code'
-             code = ""
-        else:
-            wording = feature['properties']['sites']
-            code = feature['properties']['number']
-        map_html.value = '''
-        <h4><b>{}</b></h4>
-        <p>Numéro de la zone à modéliser: {}</p> 
-        '''.format(wording, code)
-        map_html.layout.height = '100px'
-        map_html.layout.width = '380px'
+def clear_map():
+    global rect
+    rect = tuple((0.0, 0.0, 0.0, 0.0))
 
+def handle_draw(self, action, geo_json):
+    global rect
+    clear_map()
+    polygon=[]
+    for coords in geo_json['geometry']['coordinates'][0][:-1][:]:
+        polygon.append(tuple(coords))
+    polygon=tuple(polygon)
+    if action == 'created':
+        rect = polygon
+        update_coordinates_label()
+        update_city_label()
+    elif action == 'deleted':
+        rect.discard(polygon)
 
-## Function to set the code site when the user clicks on the map
-def update_code_site(feature, **kwargs):
-        site_selector.value=feature['properties']['sites']
+def update_coordinates_label():
+    """
+    Update the coordinates label with the coordinates of the current rectangle
+    ll means lower left, ul means upper left, ur means upper right, lr means lower right
+    """
+    ll_x = "{:.2f}".format(rect[0][0])
+    ll_y = "{:.2f}".format(rect[0][1])
+    ul_x = "{:.2f}".format(rect[1][0])
+    ul_y = "{:.2f}".format(rect[1][1])
+    ur_x = "{:.2f}".format(rect[2][0])
+    ur_y = "{:.2f}".format(rect[2][1])
+    lr_x = "{:.2f}".format(rect[3][0])
+    lr_y = "{:.2f}".format(rect[3][1])
+    vertice_ll.value = "    - Coin inférieur gauche : "+ll_x+", "+ll_y
+    vertice_ul.value = "    - Coin supérieur gauche : "+ul_x+", "+ul_y
+    vertice_ur.value = "    - Coin supérieur droit : "+ur_x+", "+ur_y
+    vertice_lr.value = "    - Coin inférieur droit : "+lr_x+", "+lr_y
+
+def update_city_label():    
+    """
+    Update the city label with the name of the biggest city included 
+    in the current rectangle
+    """
+    ll_x = rect[0][0]
+    ll_y = rect[0][1]
+    ur_x = rect[2][0]
+    ur_y = rect[2][1]
+    city = fbc.find_biggest_city(ll_x, ll_y, ur_x, ur_y)
+    city_label.value = "Le site sélectionné est : "+city
 
 
 ## Function to add an event on the simulation button
@@ -131,9 +168,9 @@ def simulation_click(_):
         # Launch simulation
         rate = rate_selector.value
         model_name = text_selector.value
-        site_number = sites_df[sites_df.sites == site_selector.value].index[0]
+        #site_number = sites_df[sites_df.sites == site_selector.value].index[0]
 
-        state = launch_simu(model_name, site_number, permability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines)
+        state = launch_simu(model_name, 2, permability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines)
 
 
         if state == 'end':
@@ -183,21 +220,11 @@ def simulation_interface():
 
     map_html.layout.margin = '0px 20px 20px 20px'
 
-    gdf_wgs = gdf.to_crs(epsg=4326)
-
-
-    geo_data = GeoData(geo_dataframe = gdf_wgs,
-                        style={'color': 'black', 'opacity':1, 'weight':1.9, 'dashArray':'2', 'fillOpacity':0},
-                        hover_style={'fillColor': 'red' , 'fillOpacity': 0.2},
-                        name = 'Bassin Versants')
-    
-    map.add(geo_data)
+    myDrawControl.on_draw(handle_draw)
+    map.add(myDrawControl)
 
     control = WidgetControl(widget=map_html, position='topright')
     map.add(control)
-    
-    geo_data.on_hover(region_name_and_code)
-    geo_data.on_click(update_code_site)
                 
     simulation_button.on_click(simulation_click)
 
@@ -211,16 +238,11 @@ def simulation_interface():
     ## The third and the fourth columns are used to display the control panel
 
     ### The first two row and last two columns are used to display the header, the model name selector, the model type and the date selector
-    grid[0:2, 2:4] = VBox([header, text_selector, simulation_type_label, model_type_selector, date_selector_label, calendar_start, calendar_end])
+    grid[0:2, 2:4] = VBox([header, text_selector, simulation_type_label, model_type_selector, date_selector_label, calendar_start, calendar_end, simulation_frequency_label, rate_selector])
                         
 
-    ### The third row are divided in two columns
-
-    #### The first column is used to display the site selector
-    grid[2, 2] = VBox([site_label, site_selector])
-
-    #### The second column is used to display the rate selector
-    grid[2, 3] = VBox([simulation_frequency_label, rate_selector])
+    ### The third row is used to display the coordinates label and the city label
+    grid[2, 2:4] = VBox([coordinates_label, instructions_label, vertice_ll, vertice_ul, vertice_ur, vertice_lr, city_label])
     
     ### Finally, the last row is used to display the simulation button and the simulation output
     grid[3, :] = VBox([simulation_button, simulation_output, simulation_files_output])
