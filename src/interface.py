@@ -47,7 +47,7 @@ header = HTML("<h1 style=\"text-align: center;\">Paramétrage du modèle</h1><br
 
 map = Map(center=[49.3, -1.2333], zoom=10)
 map_html = HTML('''Glissez le curseur sur le bassin versant pour afficher le code''')
-gdf = gpd.read_file('../data/Hydro_net/ZONE_HYDROGRAPHIQUE_COTIER.shp',crs="EPSG:4326")
+gdf = gpd.read_file('../simulation/data/study_sites.gpkg', layer='sites')
 
 ## Selectors
 
