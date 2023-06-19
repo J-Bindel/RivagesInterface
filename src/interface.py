@@ -102,11 +102,11 @@ def region_name_and_code(feature, **kwargs):
              wording = 'Glissez le curseur sur le bassin versant pour afficher le code'
              code = ""
         else:
-            wording = feature['properties']['LIBELLE']
-            code = feature['properties']['CODE_ZONE']
+            wording = feature['properties']['sites']
+            code = feature['properties']['number']
         map_html.value = '''
         <h4><b>{}</b></h4>
-        <p>Code de la zone à modéliser: {}</p> 
+        <p>Numéro de la zone à modéliser: {}</p> 
         '''.format(wording, code)
         map_html.layout.height = '100px'
         map_html.layout.width = '380px'
@@ -114,8 +114,7 @@ def region_name_and_code(feature, **kwargs):
 
 ## Function to set the code site when the user clicks on the map
 def update_code_site(feature, **kwargs):
-        site_selector.value=feature['properties']['CODE_ZONE']
-        print("feature", feature['properties']['CODE_ZONE'])
+        site_selector.value=feature['properties']['sites']
 
 
 ## Function to add an event on the simulation button
