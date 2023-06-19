@@ -120,8 +120,6 @@ def handle_draw(self, action, geo_json):
         rect = polygon
         update_coordinates_label()
         update_city_label()
-    elif action == 'deleted':
-        rect.discard(polygon)
 
 def update_coordinates_label():
     """
