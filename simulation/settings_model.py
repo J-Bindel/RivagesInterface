@@ -38,38 +38,61 @@ modflow_information_3 = "Chemin vers le modèle : "
 
 # Functions
 
-## Main function
-### @param model_name: name of the model
-### @param site_number: number of the site
-### @param permeability: permeability of the soil
-    #### m²/d | only if geology = 0
-### @param theta: porosity of the soil
-    #### Porosity in %
-### @param geology: geology of the soil
-    #### 0: homogeneous geology | 1: heterogeneous geology
-### @param thickness: thickness of the soil
-    #### 0: homogeneous thickness | 1: flat bottom (heterogeneous thickness)
-### @param time: time discretization
-    #### 0: chronicle | 1: mean (1 day Steady State) | 2: min (1 day SS) | 3: max (1 day SS)
-### @param ref: reference
-### @param chronicle: chronicle
-### @param approx: approximation
-### @param rate: frequency of the simulation
-### @param rep: repetition
-### @param steady: steady state
-### @param input_file: input file
-### @param modflow_enabled: modflow enabled
-    #### 0: disabled | 1: enabled
-### @param seawat_enabled: seawat enabled
-    #### 0: disabled | 1: enabled
-### @param grid: grid
-    #### 0: disabled | 1: enabled
-### @param watertable: watertable
-    #### 0: disabled | 1: enabled
-### @param pathlines: pathlines
-    #### 0: disabled | 1: enabled
 def setting(model_name, site_number, permeability, theta, geology, thickness, time, ref, chronicle, approx, rate, rep, steady, input_file, modflow_enabled, seawat_enabled, grid, watertable, pathlines):
 
+    """
+    Main function
+
+    Parameters
+    ----------
+    model_name : str
+        Name of the model
+    site_number : int
+        Number of the site
+    permeability : float
+        Permeability of the soil
+        m²/d | only if geology = 0
+    theta : float
+        Porosity of the soil in %
+    geology : int
+        Geology of the soil
+        0: homogeneous geology | 1: heterogeneous geology
+    thickness : int
+        Thickness of the soil
+        0: homogeneous thickness | 1: flat bottom (heterogeneous thickness)
+    time : int
+        Time discretization
+        0: chronicle | 1: mean (1 day Steady State) | 2: min (1 day SS) | 3: max (1 day SS)
+    ref : int
+        Reference
+    chronicle : int
+        Chronicle
+    approx : int
+        Approximation
+    rate : int
+        Frequency of the simulation
+    rep : int
+        Repetition
+    steady : int
+        Steady state
+    input_file : str
+        Input file
+    modflow_enabled : int  
+        Modflow enabled 
+        0: disabled | 1: enabled
+    seawat_enabled : int
+        Seawat enabled 
+        0: disabled | 1: enabled
+    grid : int
+        Grid 
+        0: disabled | 1: enabled
+    watertable : int
+        Watertable 
+        0: disabled | 1: enabled
+    pathlines : int
+        Pathlines 
+        0: disabled | 1: enabled
+    """
     # Site and coordinates
     site = sites.loc[sites['number']==site_number]
     site_name = sites.index._data[site_number]
